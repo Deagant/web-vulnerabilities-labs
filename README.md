@@ -23,8 +23,8 @@ Objectif : comprendre les vulnérabilités applicatives courantes, leur impact e
 |---|---|---|---|
 | `xss-reflected.md` | Cross-Site Scripting réfléchi | DVWA, niveau Medium | ✅ Documenté |
 | `ssti.md` | Server-Side Template Injection | App Flask/Jinja2 Jedha | ✅ Documenté |
-| `sqli.md` | SQL Injection | — | ⏳ À compléter |
-| `command-injection.md` | Command Injection | — | ⏳ À compléter |
+| `sqli.md` | SQL Injection | DVWA + pentest EvilCorp | ✅ Documenté |
+| `command-injection.md` | Command Injection | Pentest EvilCorp (CVSS 6.5) | ✅ Documenté |
 | `mitigations.md` | Synthèse des remédiations | — | ✅ Documenté |
 
 ---
