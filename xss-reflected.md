@@ -1,68 +1,109 @@
 # Fiche — Cross-Site Scripting réfléchi (XSS Reflected)
 
-## Définition
-
-Le Cross-Site Scripting réfléchi (XSS non-persistant) est une vulnérabilité
-qui permet d'injecter du code JavaScript dans une page web via un paramètre
-non filtré, renvoyé directement dans la réponse HTTP sans validation ni échappement.
-
 ## Contexte du lab
 
 | Élément | Détail |
 |---|---|
-| Plateforme | Lab web autorisé — exercice Jedha |
-| Niveau | Débutant / intermédiaire |
-| Objectif | Identifier un point d'injection, comprendre le mécanisme, proposer la remédiation |
+| Plateforme | DVWA (Damn Vulnerable Web Application) — exercice Jedha |
+| Environnement | localhost — VM lab autorisée |
+| Niveau de sécurité DVWA | Medium |
+| Outil d'analyse | Burp Suite (interception + modification de requêtes) |
 | Environnement autorisé | Oui |
 
-## Mécanisme
+---
 
-L'application accepte une valeur en paramètre (URL, formulaire) et la réinsère
-directement dans la page HTML sans filtrage ni échappement.
-Si un attaquant soumet du code JavaScript à la place d'une valeur légitime,
-le navigateur de la victime l'exécutera comme du code valide.
+## Ce qu'est le XSS réfléchi
 
-**Vecteur typique :** un lien piégé envoyé à une victime déclenche l'exécution
-du script dans son propre navigateur, à son insu.
+Une application affiche directement dans la page ce que l'utilisateur a saisi — un prénom, un terme de recherche, n'importe quel champ de formulaire.
+Si cette valeur n'est pas nettoyée avant insertion dans le HTML, un attaquant peut soumettre du JavaScript à la place d'un texte normal.
+Le serveur renvoie ce code dans la réponse, et le navigateur de la victime l'exécute.
+
+"Réfléchi" signifie que le payload n'est pas stocké : il voyage dans l'URL ou dans un champ POST, et ne touche que le navigateur de la personne qui clique sur le lien piégé.
+
+---
+
+## Mécanisme technique
+
+Le paramètre `name` de DVWA est inséré dans la réponse HTML sous la forme :
+
+```
+Hello [valeur saisie]
+```
+
+Sans échappement, une valeur comme `<script>alert(1)</script>` devient du HTML valide.
+Le navigateur la parse, identifie une balise script, et l'exécute.
+
+---
+
+## Ce que j'ai fait en lab
+
+### Étape 1 — Identifier le filtre
+
+Le niveau Medium de DVWA applique un filtre sur la chaîne `<script>` (en minuscules uniquement).
+En soumettant `<script>test</script>` dans le champ, rien ne se passe.
+En regardant la source de la réponse dans Burp, la balise a été retirée.
+
+### Étape 2 — Contourner le filtre par variation de casse
+
+Le filtre est sensible à la casse : il bloque `<script>` mais pas `<Script>`.
+
+Premier payload testé via Burp Suite (onglet Repeater, paramètre `name`) :
+
+```
+<Script>document.body.style.background='red'</Script>
+```
+
+Résultat : la page s'affiche avec un fond rouge. L'injection est exécutée.
+
+### Étape 3 — Démontrer l'impact : vol de cookie de session
+
+Second payload, directement dans l'URL :
+
+```
+localhost/vulnerabilities/xss_r/?name=<Script>alert(document.cookie)</Script>
+```
+
+Résultat : une boîte de dialogue apparaît avec le contenu du cookie de session.
+La valeur inclut `security=medium` et l'identifiant de session PHP — ce qui confirme qu'un attaquant pourrait récupérer ce token et usurper la session.
+
+*(Le cookie de session du lab n'est pas reproduit ici — il n'a aucune valeur hors de la VM.)*
+
+---
+
+## Pourquoi ça marche au niveau Medium
+
+DVWA Medium utilise `str_replace('<script>', '', $name)` — un remplacement simple, sensible à la casse.
+`<Script>` passe donc sans problème. C'est un exemple classique de filtre insuffisant : une liste noire partielle est contournable par variation syntaxique.
+
+---
 
 ## Impact potentiel
 
 | Impact | Description |
 |---|---|
-| Vol de session | Récupération du cookie de session si `HttpOnly` absent |
-| Redirection | Envoi vers un site malveillant |
-| Actions forcées | Exécution d'opérations à la place de l'utilisateur |
-| Phishing | Affichage d'un faux formulaire de connexion |
-| Keylogging | Capture de frappes clavier |
+| Vol de session | Récupération du cookie `PHPSESSID` si `HttpOnly` absent — l'attaquant peut rejouer la session |
+| Redirection silencieuse | `window.location` vers un faux site de login |
+| Keylogging | Capture des frappes clavier de la victime |
+| Actions forcées | Soumettre des formulaires, modifier des paramètres à la place de l'utilisateur |
+| Phishing in-page | Injecter un faux formulaire dans la page légitime |
 
-## Méthode de détection
-
-- Identifier les paramètres reflétés dans la réponse HTTP
-- Tester l'injection de caractères spéciaux : `<`, `>`, `"`, `'`
-- Observer si la réponse contient les caractères non échappés
-- Vérifier avec Burp Suite (onglet Repeater) ou l'inspecteur du navigateur
-
-## Résultat observé en lab
-
-L'analyse a confirmé qu'un paramètre de la page était inséré dans le DOM
-sans échappement, permettant l'injection de code arbitraire interprété
-par le navigateur lors du chargement de la page.
-
-*(Aucun payload offensif publié — mécanisme documenté à titre pédagogique.)*
+---
 
 ## Remédiation
 
-| Mesure | Description |
+| Mesure | Pourquoi |
 |---|---|
-| Échappement contextuel | Encoder `<` → `&lt;`, `>` → `&gt;` avant insertion dans le HTML |
-| Validation des entrées | Rejeter les entrées ne correspondant pas au format attendu |
-| Content Security Policy | Header HTTP limitant les scripts autorisés à s'exécuter |
-| HttpOnly sur les cookies | Empêche l'accès aux cookies de session via JavaScript |
-| Frameworks sécurisés | Moteurs de template qui échappent automatiquement |
+| Échappement contextuel (HTML) | `<` → `&lt;`, `>` → `&gt;` — le navigateur affiche le texte, n'exécute pas le code |
+| Validation côté serveur | Rejeter les caractères `<`, `>`, `"`, `'` si le champ n'en a pas besoin |
+| Content Security Policy (CSP) | Header HTTP qui liste les sources de script autorisées — bloque l'exécution de scripts inline |
+| `HttpOnly` sur les cookies de session | Empêche JavaScript d'accéder à `document.cookie` |
+| Frameworks modernes | React, Vue et Angular échappent automatiquement les variables dans les templates |
+
+---
 
 ## Ce que j'ai appris
 
-- La différence entre XSS réfléchi, stocké et DOM-based
-- L'importance du contexte d'injection (HTML, JavaScript, attribut, URL)
-- Pourquoi l'échappement doit être adapté au contexte
-- Le rôle de CSP comme couche de défense complémentaire
+- Un filtre par liste noire partielle est insuffisant — la casse, l'encodage et les variantes syntaxiques permettent de le contourner
+- L'absence du flag `HttpOnly` sur un cookie de session transforme un XSS en vol de session direct
+- Burp Suite Repeater permet de tester des variantes de payload rapidement sans recharger manuellement le navigateur
+- La différence concrète entre XSS réfléchi (payload dans l'URL), stocké (payload en base) et DOM-based (payload traité par le JS côté client)
