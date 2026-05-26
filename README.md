@@ -10,21 +10,22 @@ Objectif : comprendre les vulnérabilités applicatives courantes, leur impact e
 | Élément | Détail |
 |---|---|
 | Type | Exercices de formation |
-| Environnement | Labs web autorisés (exercices Jedha) |
+| Environnement | DVWA (localhost) et application Jedha dédiée |
 | Périmètre | Autorisé et contrôlé |
+| Outils | Burp Suite, navigateur |
 | Données sensibles | Supprimées ou anonymisées |
 
 ---
 
 ## Vulnérabilités documentées
 
-| Fiche | Vulnérabilité | Statut |
-|---|---|---|
-| `xss-reflected.md` | Cross-Site Scripting réfléchi | Documenté |
-| `ssti.md` | Server-Side Template Injection | Documenté |
-| `sqli.md` | SQL Injection | Template à compléter |
-| `command-injection.md` | Command Injection | Template à compléter |
-| `mitigations.md` | Synthèse des remédiations | Documenté |
+| Fiche | Vulnérabilité | Environnement | Statut |
+|---|---|---|---|
+| `xss-reflected.md` | Cross-Site Scripting réfléchi | DVWA, niveau Medium | ✅ Documenté |
+| `ssti.md` | Server-Side Template Injection | App Flask/Jinja2 Jedha | ✅ Documenté |
+| `sqli.md` | SQL Injection | — | ⏳ À compléter |
+| `command-injection.md` | Command Injection | — | ⏳ À compléter |
+| `mitigations.md` | Synthèse des remédiations | — | ✅ Documenté |
 
 ---
 
