@@ -66,7 +66,11 @@ localhost/vulnerabilities/xss_r/?name=<Script>alert(document.cookie)</Script>
 Résultat : une boîte de dialogue apparaît avec le contenu du cookie de session.
 La valeur inclut `security=medium` et l'identifiant de session PHP — ce qui confirme qu'un attaquant pourrait récupérer ce token et usurper la session.
 
-*(Le cookie de session du lab n'est pas reproduit ici — il n'a aucune valeur hors de la VM.)*
+![Burp Suite — bypass XSS medium et injection réussie](assets/xss-burp-bypass.png)
+
+![Cookie de session récupéré via alert(document.cookie)](assets/xss-cookie-alert.png)
+
+*(Cookie de session généré en VM lab — aucune valeur hors de cet environnement.)*
 
 ---
 

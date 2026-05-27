@@ -55,6 +55,8 @@ Dans Burp Suite, le paramètre `id` (champ User ID du formulaire) était clairem
 En soumettant une apostrophe `'`, la réponse renvoyait une erreur SQL contenant un message du SGBD —
 confirmation que l'entrée était insérée brute dans la requête.
 
+![Burp Suite — DVWA SQL Injection, interception et inspection du paramètre id](assets/sqli-burp-dvwa.png)
+
 ### Étape 2 — Identifier la structure avec UNION
 
 L'injection UNION permet de coller des colonnes supplémentaires à la requête d'origine

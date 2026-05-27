@@ -61,6 +61,8 @@ Réponse du serveur :
 Thank you 49 !
 ```
 
+![SSTI détectée — {{7*7}} évalué à 49 par le serveur](assets/ssti-detection.png)
+
 Le serveur a évalué l'expression mathématique. C'est la confirmation que le moteur de template exécute le contenu de l'entrée. Le fait d'obtenir `49` (et non `7*7`) indique que c'est Jinja2 ou Twig — pas Freemarker qui renverrait `49` sous une autre syntaxe.
 
 ### Étape 2 — Accéder au système de fichiers
@@ -74,6 +76,8 @@ Il permet de remonter jusqu'au module `os` via l'arborescence des classes Python
 
 Résultat : la réponse a affiché la liste des répertoires à la racine du système,
 incluant `flag.txt`.
+
+![SSTI RCE — ls / exécuté côté serveur via Jinja2](assets/ssti-rce-ls.png)
 
 ### Étape 3 — Lire un fichier sensible (RCE)
 
