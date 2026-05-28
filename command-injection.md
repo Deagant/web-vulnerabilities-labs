@@ -60,7 +60,7 @@ Ce retour a confirmé :
 2. **L'exécution était côté serveur** — pas du JavaScript côté navigateur
 3. **Le compte applicatif** — son identité était visible, permettant d'évaluer le niveau de privilèges disponibles
 
-*(Détails de l'environnement anonymisés — voir le [rapport de pentest](https://github.com/Deagant/pentest-lab-report-portfolio) pour le contexte complet.)*
+*(Détails de l'environnement anonymisés — voir le [rapport de pentest](https://github.com/Remy-Miquel/pentest-lab-report-portfolio) pour le contexte complet.)*
 
 ---
 

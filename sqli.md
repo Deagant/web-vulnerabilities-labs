@@ -81,7 +81,7 @@ Sévérité CVSS 3.1 : **9.1 Critical** (CWE-89).
 La chaîne d'attaque documentée confirme que cette injection constituait l'un des vecteurs d'accès initiaux,
 en parallèle de l'injection de commande et de la XSS stockée.
 
-*(Détails opérationnels retirés du rapport public — voir le [rapport de pentest](https://github.com/Deagant/pentest-lab-report-portfolio).)*
+*(Détails opérationnels retirés du rapport public — voir le [rapport de pentest](https://github.com/Remy-Miquel/pentest-lab-report-portfolio).)*
 
 ---
 
