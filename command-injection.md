@@ -88,7 +88,7 @@ qui, combiné à des droits de groupe excessifs, permettait un mouvement latéra
 | `shlex.quote()` (Python) ou `escapeshellarg()` (PHP) | Échapper les métacaractères si l'appel shell est inévitable |
 | Moindre privilège processus | Le serveur web ne doit pas tourner en root — limite l'impact d'une injection réussie |
 | Isolation | Conteneur ou sandbox — restreint la portée des commandes exécutables |
-| WAF | Filtrage des séparateurs shell (`;`, `&&`, `||`) en entrée |
+| WAF | Filtrage des séparateurs shell (`;`, `&&`, pipe) — couche complémentaire, pas suffisante seule |
 
 ---
 
