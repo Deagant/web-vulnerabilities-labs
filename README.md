@@ -55,6 +55,6 @@ Chaque fiche contient :
 
 ## Avertissement
 
-Exercices réalisés dans un cadre légal, éducatif et autorisé.  
+Tout ça s'est passé sur des environnements de formation autorisés — DVWA local, serveurs Jedha, VM perso.  
 Aucune donnée réelle ou sensible n'est publiée dans ce dépôt.  
 Les fiches décrivent les mécanismes — elles ne constituent pas un guide d'attaque.
