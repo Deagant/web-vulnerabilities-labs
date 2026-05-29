@@ -19,13 +19,11 @@ Objectif : comprendre les vulnérabilités applicatives courantes, leur impact e
 
 ## Vulnérabilités documentées
 
-| Fiche | Vulnérabilité | Environnement | Statut |
-|---|---|---|---|
-| `xss-reflected.md` | Cross-Site Scripting réfléchi | DVWA, niveau Medium | ✅ Documenté |
-| `ssti.md` | Server-Side Template Injection | App Flask/Jinja2 Jedha | ✅ Documenté |
-| `sqli.md` | SQL Injection | DVWA + pentest EvilCorp | ✅ Documenté |
-| `command-injection.md` | Command Injection | Pentest EvilCorp (CVSS 6.5) | ✅ Documenté |
-| `mitigations.md` | Synthèse des remédiations | — | ✅ Documenté |
+- **XSS réfléchie** (`xss-reflected.md`) — DVWA niveau Medium, bypass de filtre par casse
+- **SSTI Jinja2** (`ssti.md`) — app Flask Jedha, RCE via introspection Python
+- **SQLi UNION-based** (`sqli.md`) — DVWA + interface EvilCorp (CVSS 9.1)
+- **Command Injection** (`command-injection.md`) — lab EvilCorp (CVSS 6.5, CWE-78)
+- **Remédiations** (`mitigations.md`) — synthèse transversale
 
 ---
 
