@@ -43,6 +43,20 @@ Le niveau Medium de DVWA applique un filtre sur la chaîne `<script>` (en minusc
 En soumettant `<script>test</script>` dans le champ, rien ne se passe.
 En regardant la source de la réponse dans Burp, la balise a été retirée.
 
+### Avant l'étape 2 — ce qui n'a pas marché
+
+Premier réflexe : `<script>alert(1)</script>`. Dans Burp, la balise disparaît complètement de la réponse — pas remplacée, juste retirée. Le filtre supprime quelque chose.
+
+J'ai enchaîné avec `<script>alert(1)</SCRIPT>` en me disant que peut-être la balise fermante passait différemment. Pareil. Ensuite `<SCRIPT>alert(1)</SCRIPT>` en majuscules — là j'ai eu un doute, ça aurait pu passer, mais non.
+
+À ce stade je savais pas exactement ce que le filtre ciblait. J'aurais pu continuer à tâtonner mais j'ai préféré regarder le code source directement — DVWA permet de voir le PHP via les settings. Une ligne :
+
+```php
+$name = str_replace( '<script>', '', $name );
+```
+
+Remplacement simple, en dur, sensible à la casse. Seulement `<script>` avec les minuscules exactes. Ce qui veut dire que `<Script>` ou `<SCRIPT>` ne matchent pas — et passent.
+
 ### Étape 2 — Contourner le filtre par variation de casse
 
 Le filtre est sensible à la casse : il bloque `<script>` mais pas `<Script>`.
