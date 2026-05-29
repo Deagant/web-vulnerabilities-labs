@@ -91,30 +91,19 @@ Résultat : le contenu du fichier `flag.txt` a été renvoyé dans la réponse H
 
 ---
 
-## Pourquoi cette chaîne fonctionne
+## Pourquoi `config.__class__.__init__.__globals__['os']` fonctionne
 
-| Élément | Rôle |
-|---|---|
-| `config` | Objet Flask exposé dans le contexte Jinja2 par défaut |
-| `.__class__` | Accède à la classe Python de l'objet |
-| `.__init__` | Accède au constructeur de la classe |
-| `.__globals__` | Dictionnaire des variables globales du module Python où `__init__` est défini |
-| `['os']` | Module `os` chargé dans ce contexte global |
-| `.popen('cmd').read()` | Exécute une commande shell, lit le résultat |
+C'est pas évident au premier coup d'œil. `config` c'est juste un objet Flask exposé dans Jinja2 par défaut — rien de dangereux en soi.
 
-C'est une technique bien documentée sur Jinja2 — elle fonctionne parce que le contexte d'exécution du template a accès aux internals Python, et que `os` est souvent déjà importé quelque part dans le code Flask.
+Mais en Python, chaque objet connaît sa propre classe (`.__class__`), chaque classe a un constructeur (`.__init__`), et ce constructeur a accès aux variables globales du module où il a été défini (`.__globals__`). Si `os` est importé quelque part dans ce module — ce qui est presque toujours le cas dans une app Flask — il est là, accessible.
+
+C'est pas un bug Jinja2. C'est l'introspection Python normale, juste pas isolée du contexte template.
 
 ---
 
-## Impact potentiel
+## Ce que ça donne en pratique
 
-| Impact | Description |
-|---|---|
-| Lecture de fichiers | Accès à la configuration, aux clés privées, aux fichiers `.env` |
-| Exécution de commandes (RCE) | Contrôle total du serveur si le processus tourne avec des droits suffisants |
-| Exfiltration de secrets | Variables d'environnement, tokens API, mots de passe en clair |
-| Mouvement latéral | Accès aux services internes non exposés directement |
-| Compromission du serveur | Reverse shell, persistance |
+Sur ce lab : lecture de `flag.txt` via `cat`. En conditions réelles les mêmes commandes donnent accès aux `.env`, aux clés privées, aux tokens en clair. Si le processus tourne en root — reverse shell, persistance, compromission complète. La SSTI c'est rarement un finding mineur.
 
 ---
 
