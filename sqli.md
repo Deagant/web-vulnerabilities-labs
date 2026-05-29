@@ -23,53 +23,18 @@ Séparer les deux (requêtes préparées) suffit à éliminer la vulnérabilité
 
 ---
 
-## Mécanisme technique
+## Comment ça s'est passé concrètement
 
-La requête vulnérable ressemble typiquement à :
+La requête vulnérable de DVWA c'est du classique : `SELECT first_name, last_name FROM users WHERE user_id = '$id'`.
+Une apostrophe dans le champ, et j'ai eu une erreur MySQL brute dans la réponse — c'est tout ce qu'il faut pour confirmer que l'entrée est collée directement dans la requête sans filtrage.
 
-```sql
-SELECT first_name, last_name FROM users WHERE user_id = '$id';
-```
+Dans Burp le paramètre `id` était visible en clair dans la requête GET. J'ai intercepté, modifié, renvoyé.
+Trouver le bon nombre de colonnes avec `ORDER BY`, puis construire un `UNION SELECT` qui matche la structure.
+Burp Repeater rend ça rapide — un clic pour renvoyer au lieu de recharger le formulaire à la main à chaque essai.
 
-Si `$id` vaut `1`, tout va bien. Si l'entrée n'est pas contrôlée, on peut soumettre :
-
-```
-1' OR '1'='1
-```
-
-Ce qui produit :
-
-```sql
-SELECT first_name, last_name FROM users WHERE user_id = '1' OR '1'='1';
-```
-
-La condition est toujours vraie — l'application renvoie tous les enregistrements.
-
----
-
-## Ce que j'ai fait en lab (DVWA)
-
-### Étape 1 — Détecter le point d'injection
-
-Dans Burp Suite, le paramètre `id` (champ User ID du formulaire) était clairement visible dans la requête GET.
-En soumettant une apostrophe `'`, la réponse renvoyait une erreur SQL contenant un message du SGBD —
-confirmation que l'entrée était insérée brute dans la requête.
+Résultat : noms et hashs MD5 de la table users. MD5 sans sel — cassables en quelques minutes avec hashcat.
 
 ![Burp Suite — DVWA SQL Injection, interception et inspection du paramètre id](assets/sqli-burp-dvwa.png)
-
-### Étape 2 — Identifier la structure avec UNION
-
-L'injection UNION permet de coller des colonnes supplémentaires à la requête d'origine
-et de récupérer des données d'autres tables.
-
-Burp Inspector montrait le paramètre `id` décodé avec des éléments de requête SQL visibles,
-et la réponse retournait des colonnes `first_name` et `password` extraites de la table `users`.
-
-### Étape 3 — Impact observé
-
-La réponse contenait des noms et des hashs de mots de passe de la table utilisateurs.
-L'accès à ces données confirme qu'une injection UNION-based bien conduite permet
-d'exfiltrer l'intégralité d'une table sans aucun droit particulier côté application.
 
 ---
 
@@ -82,18 +47,6 @@ La chaîne d'attaque documentée confirme que cette injection constituait l'un d
 en parallèle de l'injection de commande et de la XSS stockée.
 
 *(Voir VULN-04 dans le rapport EvilCorp pour le contexte complet — CVSS 9.1 Critical.)*
-
----
-
-## Impact potentiel
-
-| Impact | Description |
-|---|---|
-| Extraction de données | Identifiants, hashs de mots de passe, données personnelles |
-| Contournement d'authentification | `OR '1'='1` peut permettre de se connecter sans mot de passe valide |
-| Énumération du schéma | `information_schema` expose tables, colonnes, types |
-| Modification de données | `UPDATE` / `DELETE` si l'accès en écriture le permet |
-| Exécution de commandes | `xp_cmdshell` sur MSSQL, `LOAD_FILE` sur MySQL selon configuration |
 
 ---
 
