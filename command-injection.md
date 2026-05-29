@@ -64,18 +64,11 @@ Ce retour a confirmé :
 
 ---
 
-## Impact potentiel
+## Impact dans ce contexte
 
-| Impact | Description |
-|---|---|
-| Énumération système | `id`, `whoami`, `uname -a`, liste des fichiers accessibles |
-| Lecture de fichiers | Accès aux fichiers lisibles par le compte applicatif (`/etc/passwd`, configs, clés) |
-| Reverse shell | Ouverture d'une connexion sortante vers un point d'écoute attaquant |
-| Mouvement latéral | Accès aux ressources réseau internes accessibles depuis le serveur |
-| Persistance | Création d'une backdoor, modification de fichiers de démarrage |
+En pratique sur ce lab : `id`, `whoami`, listing de fichiers. Le compte applicatif n'était pas root, donc l'impact direct était limité. Mais combiné aux droits de groupe excessifs du rapport EvilCorp, ça ouvrait un chemin vers d'autres comptes — c'est rarement un vecteur isolé.
 
-Dans le contexte du pentest EvilCorp, cette vulnérabilité constituait un point d'entrée
-qui, combiné à des droits de groupe excessifs, permettait un mouvement latéral vers d'autres comptes.
+Dans un contexte réel sans moindre privilège : `cat /etc/passwd`, clés SSH dans les home, fichiers `.env` avec tokens d'API. Et si le réseau le permet, un reverse shell — une ligne bash ou python suffit.
 
 ---
 
